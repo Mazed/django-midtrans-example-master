@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checkout Page</title>
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="row justify-content-center mb-5">
+        <div class="col-md-12">
+          <form method="post">
+            {% csrf_token %}
+            <h2 class="text-center">Order Summary</h2>
+            <hr />
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Total Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <tr>
+                    <td>{{ order.product_name }}</td>
+                    <td>{{ order.quantity }}</td>
+                    <td>${{ order.total_price }}</td>
+                  </tr>
+              </tbody>
+            </table>
+            <br>
+            <h2 class="text-center">Buyer Data</h2>
+            <hr />
+            <div class="form-group">
+              <label for="name">Name:</label>
+              <input type="text" class="form-control" id="name" name="name" placeholder="Enter your name" value="{{ CheckoutData.name }}" required/>
+            </div>
+            <div class="form-group">
+              <label for="email">Email:</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email" value="{{ CheckoutData.email }}" required/>
+            </div>
+            <div class="form-group">
+              <label for="address">Address:</label>
+              <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your address" value="{{ CheckoutData.address }}" required></textarea>
+            </div>
+            <div class="form-group">
+              <label for="city">City:</label>
+              <input type="text" class="form-control" id="city" name="city" placeholder="Enter your city" value="{{ CheckoutData.city }}" required/>
+            </div>
+            <div class="form-group">
+              <label for="state">State:</label>
+              <input type="text" class="form-control" id="state" name="state" placeholder="Enter your state" value="{{ CheckoutData.state }}" required/>
+            </div>
+            <div class="form-group">
+              <label for="zip">Zip:</label>
+              <input type="text" class="form-control" id="zip" name="zip" placeholder="Enter your zip" value="{{ CheckoutData.zip }}" required/>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone:</label>
+              <input type="text" class="form-control" id="phone" name="phone" placeholder="Enter your phone number" value="{{ CheckoutData.phone }}" required/>
+            </div>
+            <br>
+            <button type="submit" class="btn btn-primary btn-lg btn-block">Place Order</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

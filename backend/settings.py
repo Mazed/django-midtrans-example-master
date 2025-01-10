@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+import django_heroku
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,7 +27,7 @@ SECRET_KEY = 'django-insecure-5tt7cp&z4yx=n(2$50qhv2w-508#lvc4dju-bz@&w#ex)rd!af
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -60,7 +61,7 @@ ROOT_URLCONF = 'backend.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['midtrans/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -179,3 +180,5 @@ JAZZMIN_UI_TWEAKS = {
 
 MIDTRANS_SERVER_KEY = 'SB-Mid-server-NHnqEgQdTjUWG0p7C67QaYVH'
 MIDTRANS_CLIENT_KEY = 'SB-Mid-client-iEOx8_Fjx49EentG'
+
+django_heroku.settings(locals())

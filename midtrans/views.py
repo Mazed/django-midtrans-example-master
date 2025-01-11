@@ -112,12 +112,32 @@ def checkout(request, order_id):
     # Fetch the order to display on the checkout page
     return render(request, 'checkout.html', {'order': order})
 
+def midtrans_callback(request):
+    # Extract status_code and transaction_status from the request
+    status_code = request.GET.get('status_code')
+    transaction_status = request.GET.get('transaction_status')
+    order_id = request.GET.get('order_id')
+    
+    # Redirect to the payment_success page with the status code and transaction status
+    return redirect('payment_success', order_id=order_id, status_code=status_code, transaction_status=transaction_status)
+
 def payment_success(request, order_id):
-    # Fetch the order to display on the payment success page
+# Fetch the order to display on the payment success page
     order = Order.objects.get(order_id=order_id)
     data = Order(
         order_id = Order.objects.get(order_id=order_id),
         order_date = Order.objects.get(order_id=order_id).order_date,
         total_price = Order.objects.get(order_id=order_id).total_price,
     )
-    return render(request, 'payment_success.html', {"order_id":order_id, 'order': order, 'data': data})
+    
+    # Pass the status code and transaction status to the template
+    context = {
+        "order_id": order_id,
+        'order': order,
+        'data': data,
+        'status_code': midtrans_callback.status_code,
+        'transaction_status': midtrans_callback.transaction_status,
+    }
+    
+    return render(request, 'payment_success.html', context)
+

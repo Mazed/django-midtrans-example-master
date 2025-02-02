@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect
 from .models import Product, Order, CheckoutData
 from .utils import random_order_id
 from django.conf import settings
-from midtransclient import CoreApi
+from midtransclient import CoreApi, Snap
 
 def index(request):
     if request.method == 'POST':
@@ -75,30 +75,13 @@ def checkout(request, order_id):
             data.save()
 
         # Initialize Midtrans Snap
-        core_api = CoreApi(
+        snap = Snap(
             is_production=False,  # Set to True for production
             server_key=settings.MIDTRANS_SERVER_KEY,
             client_key=settings.MIDTRANS_CLIENT_KEY
         )
 
-        # prepare CORE API parameter to get credit card token
-        # another sample of card number can refer to https://docs.midtrans.com/en/technical-reference/sandbox-test?id=card-payments
-        params = {
-            'card_number': '4661601264117463',
-            'card_exp_month': '07',
-            'card_exp_year': '2029',
-            'card_cvv': '809',
-            'client_key': settings.MIDTRANS_CLIENT_KEY
-        }
-
-        card_token_response = core_api.card_token(params)
-        cc_token = card_token_response['token_id']
-
         param = {
-            'payment_type': 'credit_card',
-            'credit_card': {
-                "token_id": cc_token
-            },
             'transaction_details' : {
                 "order_id": order.order_id,
                 "gross_amount": int(order.total_price),
@@ -117,17 +100,18 @@ def checkout(request, order_id):
         }       
 
         # Create transaction
-        charge_response = core_api.charge(param)
+        transaction = snap.create_transaction(param)
+        # Get the redirect URL
+        redirect_url = transaction['redirect_url']
+        return redirect(redirect_url)
 
-        print('charge_response:')
-        print(charge_response)
 
-        return redirect('payment_success', order_id=order_id)
-    
+
     # Fetch the order to display on the checkout page
     return render(request, 'checkout.html', {'order': order})
 
 def midtrans_callback(request):
+    order = Order.objects.get(order_id=order_id)
     # Extract status_code and transaction_status from the request
     status_code = request.GET.get('status_code')
     transaction_status = request.GET.get('transaction_status')
@@ -135,13 +119,15 @@ def midtrans_callback(request):
 
     # Check if the transaction is successful
     if transaction_status == 'settlement':
+        order.order_status = 'paid'
+        order.save()
         # Redirect to the payment success page with the status code and transaction status
         return redirect('payment_success', order_id=order_id, status_code=status_code, transaction_status=transaction_status)
     else:
         # Handle failed or pending transactions
         return redirect('payment_failed', order_id=order_id, status_code=status_code, transaction_status=transaction_status)
 
-def payment_success(request, order_id):
+def payment_success(request, order_id, status_code, transaction_status):
     # Fetch the order to display on the payment success page
     order = Order.objects.get(order_id=order_id)
 

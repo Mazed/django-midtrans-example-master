@@ -105,17 +105,15 @@ def checkout(request, order_id):
         redirect_url = transaction['redirect_url']
         return redirect(redirect_url)
 
-
-
     # Fetch the order to display on the checkout page
     return render(request, 'checkout.html', {'order': order})
 
 def midtrans_callback(request):
+    order_id = request.GET.get('order_id')
     order = Order.objects.get(order_id=order_id)
     # Extract status_code and transaction_status from the request
     status_code = request.GET.get('status_code')
     transaction_status = request.GET.get('transaction_status')
-    order_id = request.GET.get('order_id')
 
     # Check if the transaction is successful
     if transaction_status == 'settlement':
@@ -127,13 +125,12 @@ def midtrans_callback(request):
         # Handle failed or pending transactions
         return redirect('payment_failed', order_id=order_id, status_code=status_code, transaction_status=transaction_status)
 
-def payment_success(request, order_id, status_code, transaction_status):
+def payment_success(request):
     # Fetch the order to display on the payment success page
-    order = Order.objects.get(order_id=order_id)
-
-    # Pass the status code and transaction status to the template
+    order_id = request.GET.get('order_id')
     status_code = request.GET.get('status_code')
     transaction_status = request.GET.get('transaction_status')
+    order = Order.objects.get(order_id=order_id)
 
     context = {
         "order_id": order_id,

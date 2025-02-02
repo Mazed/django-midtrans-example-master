@@ -127,16 +127,17 @@ def midtrans_callback(request):
 
 def payment_success(request):
     # Fetch the order to display on the payment success page
+    order = Order.objects.get(order_id=request.GET.get('order_id'))
     order_id = request.GET.get('order_id')
     status_code = request.GET.get('status_code')
     transaction_status = request.GET.get('transaction_status')
-    order = Order.objects.get(order_id=order_id)
-
-    context = {
-        "order_id": order_id,
-        'order': order,
-        'status_code': status_code,
-        'transaction_status': transaction_status,
-    }
     
-    return render(request, 'payment_success.html', context)
+    # Check if the transaction is successful
+    if transaction_status == 'settlement':
+        order.order_status = 'paid'
+        order.save()
+        # Redirect to the payment success page with the status code and transaction status
+        return render(request, 'payment_success.html', {'order': order, 'order_id': order_id, 'status_code': status_code, 'transaction_status': transaction_status})
+    else:
+        # Handle failed or pending transactions
+        return redirect('payment_failed', order_id=order_id, status_code=status_code, transaction_status=transaction_status)

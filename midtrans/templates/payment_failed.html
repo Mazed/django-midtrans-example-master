@@ -1,0 +1,47 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment Success</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div>
+        <h1 class="text-center">Payment Failed!</h1>
+        <hr />
+        <div class="col-md-12">
+        <p>
+          Your order is not processed! Please try again.
+        </p>
+        <div class="col-md-12">
+          <h2>Order Details:</h2>
+          <ul>
+            <li>Order ID: {{ order.order_id }}</li>
+            <li>Order Date: {{ order.order_date }}</li>
+            <li>Total Amount: ${{ order.total_price}}</li>
+          </ul>
+        </div>
+        </div>
+        <button class="back-to-checkout btn btn-primary btn-lg btn-block">Back to Checkout</button>
+      </div>
+    </div>
+    <script>
+      // Get the back to checkout button
+      const backButton = document.querySelector(".back-to-checkout");
+
+      // Add an event listener to the button
+      backButton.addEventListener("click", () => {
+        var url = "/checkout/{{ order.order_id }}";
+        // Redirect the user to the checkout page
+        window.location.href = url ;
+      });
+    </script>
+  </body>
+</html>

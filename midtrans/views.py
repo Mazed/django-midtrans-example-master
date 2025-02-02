@@ -121,6 +121,8 @@ def checkout(request, order_id):
 
         print('charge_response:')
         print(charge_response)
+
+        return redirect('payment_success', order_id=order_id)
     
     # Fetch the order to display on the checkout page
     return render(request, 'checkout.html', {'order': order})
